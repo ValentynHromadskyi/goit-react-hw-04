@@ -10,6 +10,7 @@ import { Loading } from "./Loading/Loading";
 function App() {
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
+  const [totalPage, setTotalPage] = useState(0);
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
@@ -35,6 +36,7 @@ function App() {
         setError(false);
 
         const fetchedData = await fetchArticles(query.split("/")[1], page);
+        setTotalPage(fetchedData.total_pages);
         setImages((prevImages) => [...prevImages, ...fetchedData.results]);
       } catch (error) {
         setError(true);
@@ -44,15 +46,17 @@ function App() {
     }
     fetchData();
   }, [query, page]);
+  console.log(totalPage);
 
   return (
     <>
       <SearchBar onSubmit={searchArticles} />
       {error && <b>error, please reload the page</b>}
       {images.length > 0 && !error && <ImageGallery items={images} />}
-      {images.length > 0 && !loading && (
+      {images.length > 0 && !loading && page !== totalPage && (
         <LoadMore handleLoadMore={handleLoadMore} />
       )}
+      {page === totalPage && <b>these are all the results</b>}
       <Toaster position="top-center" />
       {loading && <Loading />}
     </>
